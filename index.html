@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Enfrok Web OS</title>
+<style>
+    /* --- Basic Reset --- */
+    * {margin:0; padding:0; box-sizing:border-box; font-family: 'Segoe UI', sans-serif;}
+    body {background: linear-gradient(135deg, #1e1e2f, #2a2a3e); height:100vh; overflow:hidden; color:#eee;}
+
+    /* --- Taskbar Top --- */
+    #taskbar {
+        position: fixed; top:0; left:0; right:0; height:40px; background:#333;
+        display:flex; align-items:center; padding:0 10px; z-index:1000;
+        border-bottom:2px solid #555;
+    }
+    #taskbar span {margin-right:15px; cursor:pointer;}
+    #taskbar .time {margin-left:auto;}
+
+    /* --- Desktop Icons --- */
+    #desktop {
+        position: absolute; top:40px; left:0; right:0; bottom:0;
+        display:flex; flex-wrap: wrap; padding:20px;
+    }
+    .icon {
+        width:80px; text-align:center; margin:10px; cursor:pointer;
+    }
+    .icon img {width:60px; height:60px;}
+
+    /* --- App Windows --- */
+    .app-window {
+        position:absolute; top:60px; left:60px; width:400px; height:300px;
+        background:#2b2b3b; border-radius:10px; box-shadow:0 0 15px rgba(0,0,0,0.7);
+        display:none; flex-direction:column; z-index:900;
+    }
+    .app-header {
+        display:flex; justify-content:space-between; align-items:center;
+        background:#444; padding:5px 10px; border-radius:10px 10px 0 0; cursor:move;
+    }
+    .app-header span {margin-left:5px; margin-right:5px; cursor:pointer; font-weight:bold;}
+    .app-content {flex:1; padding:10px; overflow:auto; color:#eee;}
+
+    /* --- Buttons --- */
+    button {padding:5px 10px; background:#555; color:#eee; border:none; border-radius:5px; cursor:pointer;}
+    button:hover {background:#777;}
+
+    /* --- Settings App --- */
+    .setting-btn {margin:5px 0; display:block;}
+
+    /* --- Notes App --- */
+    .note {background:#3a3a50; padding:5px; margin-bottom:5px; border-radius:5px;}
+
+    /* --- Browser App --- */
+    iframe {width:100%; height:90%; border:none; border-radius:5px;}
+</style>
+</head>
+<body>
+
+<!-- --- Taskbar Top --- -->
+<div id="taskbar">
+    <span id="start-btn">☰ Start</span>
+    <span id="open-settings">⚙️ Settings</span>
+    <span id="open-calc">🧮 Calculator</span>
+    <span id="open-notes">📝 Notes</span>
+    <span id="open-browser">🌐 Browser</span>
+    <span id="open-ai">🤖 Enfrok Intelligence</span>
+    <span class="time" id="time-display"></span>
+</div>
+
+<!-- --- Desktop --- -->
+<div id="desktop">
+    <div class="icon" id="desktop-settings">
+        <img src="https://img.icons8.com/ios-filled/50/ffffff/settings.png"/>
+        <div>Settings</div>
+    </div>
+    <div class="icon" id="desktop-calc">
+        <img src="https://img.icons8.com/ios-filled/50/ffffff/calculator.png"/>
+        <div>Calculator</div>
+    </div>
+    <div class="icon" id="desktop-notes">
+        <img src="https://img.icons8.com/ios-filled/50/ffffff/note.png"/>
+        <div>Notes</div>
+    </div>
+    <div class="icon" id="desktop-browser">
+        <img src="https://img.icons8.com/ios-filled/50/ffffff/internet.png"/>
+        <div>Browser</div>
+    </div>
+    <div class="icon" id="desktop-ai">
+        <img src="https://img.icons8.com/ios-filled/50/ffffff/robot.png"/>
+        <div>Enfrok AI</div>
+    </div>
+</div>
+
+<!-- --- App Windows --- -->
+<div class="app-window" id="settings-app">
+    <div class="app-header">
+        <div>Settings</div>
+        <div>
+            <span class="minimize">-</span>
+            <span class="close">X</span>
+            <span class="force-stop">⚡</span>
+        </div>
+    </div>
+    <div class="app-content">
+        <button class="setting-btn" id="delete-apps-btn">Delete Apps</button>
+        <label>Change Time: <input type="time" id="custom-time"></label><br>
+        <label>Country Time: <input type="text" id="country-time" placeholder="e.g., India"></label>
+    </div>
+</div>
+
+<div class="app-window" id="calc-app">
+    <div class="app-header">
+        <div>Calculator</div>
+        <div>
+            <span class="minimize">-</span>
+            <span class="close">X</span>
+            <span class="force-stop">⚡</span>
+        </div>
+    </div>
+    <div class="app-content">
+        <input type="text" id="calc-display" readonly style="width:100%; padding:5px; margin-bottom:5px; background:#1e1e2f; color:#eee;">
+        <div id="calc-buttons"></div>
+    </div>
+</div>
+
+<div class="app-window" id="notes-app">
+    <div class="app-header">
+        <div>Notes</div>
+        <div>
+            <span class="minimize">-</span>
+            <span class="close">X</span>
+            <span class="force-stop">⚡</span>
+        </div>
+    </div>
+    <div class="app-content">
+        <input type="text" id="note-input" placeholder="Write a note..." style="width:100%; padding:5px; margin-bottom:5px; background:#1e1e2f; color:#eee;">
+        <button id="add-note-btn">Add Note</button>
+        <div id="notes-list"></div>
+    </div>
+</div>
+
+<div class="app-window" id="browser-app">
+    <div class="app-header">
+        <div>Browser</div>
+        <div>
+            <span class="minimize">-</span>
+            <span class="close">X</span>
+            <span class="force-stop">⚡</span>
+        </div>
+    </div>
+    <div class="app-content">
+        <input type="text" id="browser-url" placeholder="Enter URL..." style="width:100%; padding:5px; margin-bottom:5px; background:#1e1e2f; color:#eee;">
+        <button id="go-btn">Go</button>
+        <iframe id="browser-frame"></iframe>
+    </div>
+</div>
+
+<div class="app-window" id="ai-app">
+    <div class="app-header">
+        <div>Enfrok Intelligence</div>
+        <div>
+            <span class="minimize">-</span>
+            <span class="close">X</span>
+            <span class="force-stop">⚡</span>
+        </div>
+    </div>
+    <div class="app-content">
+        <input type="text" id="ai-input" placeholder="Ask me anything..." style="width:100%; padding:5px; margin-bottom:5px; background:#1e1e2f; color:#eee;">
+        <button id="ai-send-btn">Send</button>
+        <div id="ai-response" style="margin-top:10px;"></div>
+    </div>
+</div>
+
+<script>
+/* --- Taskbar Time --- */
+function updateTime(){
+    const now = new Date();
+    document.getElementById('time-display').textContent = now.toLocaleTimeString();
+}
+setInterval(updateTime, 1000);
+updateTime();
+
+/* --- App Control Functions --- */
+function openApp(id){ document.getElementById(id).style.display='flex'; }
+function closeApp(id){ document.getElementById(id).style.display='none'; }
+function minimizeApp(id){ document.getElementById(id).style.display='none'; }
+function forceStopApp(id){ document.getElementById(id).style.display='none'; }
+
+/* --- Link desktop icons --- */
+document.getElementById('desktop-settings').onclick = () => openApp('settings-app');
+document.getElementById('desktop-calc').onclick = () => openApp('calc-app');
+document.getElementById('desktop-notes').onclick = () => openApp('notes-app');
+document.getElementById('desktop-browser').onclick = () => openApp('browser-app');
+document.getElementById('desktop-ai').onclick = () => openApp('ai-app');
+
+/* --- Link taskbar buttons --- */
+document.getElementById('open-settings').onclick = () => openApp('settings-app');
+document.getElementById('open-calc').onclick = () => openApp('calc-app');
+document.getElementById('open-notes').onclick = () => openApp('notes-app');
+document.getElementById('open-browser').onclick = () => openApp('browser-app');
+document.getElementById('open-ai').onclick = () => openApp('ai-app');
+
+/* --- Window Buttons --- */
+document.querySelectorAll('.close').forEach(el=>el.onclick=()=>{
+    el.closest('.app-window').style.display='none';
+});
+document.querySelectorAll('.minimize').forEach(el=>el.onclick=()=>{
+    el.closest('.app-window').style.display='none';
+});
+document.querySelectorAll('.force-stop').forEach(el=>el.onclick=()=>{
+    el.closest('.app-window').style.display='none';
+});
+
+/* --- Calculator --- */
+const calcButtons = ['7','8','9','/','4','5','6','*','1','2','3','-','0','.','=','+'];
+const calcDiv = document.getElementById('calc-buttons');
+calcButtons.forEach(b=>{
+    const btn = document.createElement('button');
+    btn.textContent=b;
+    btn.onclick = ()=>{
+        const display = document.getElementById('calc-display');
+        if(b==='='){
+            try { display.value = eval(display.value); }
+            catch(e){ display.value='Error'; }
+        } else display.value+=b;
+    };
+    calcDiv.appendChild(btn);
+});
+
+/* --- Notes App --- */
+document.getElementById('add-note-btn').onclick=()=>{
+    const input = document.getElementById('note-input');
+    if(input.value.trim()==='') return;
+    const div = document.createElement('div');
+    div.className='note';
+    div.textContent=input.value;
+    div.onclick=()=>div.remove();
+    document.getElementById('notes-list').appendChild(div);
+    input.value='';
+};
+
+/* --- Browser App --- */
+document.getElementById('go-btn').onclick=()=>{
+    let url = document.getElementById('browser-url').value;
+    if(!url.startsWith('http')) url='https://'+url;
+    document.getElementById('browser-frame').src=url;
+};
+
+/* --- Enfrok Intelligence AI --- */
+document.getElementById('ai-send-btn').onclick=()=>{
+    const input = document.getElementById('ai-input').value.toLowerCase();
+    const responseDiv = document.getElementById('ai-response');
+    let resp='I can’t understand this, I\'m limited...';
+    
+    // Math solving
+    if(input.match(/solve|calculate|\d/)){
+        try{ resp='Answer: '+eval(input.replace(/[^-()\d/*+.]/g,'')); }
+        catch(e){ resp='I can’t understand this, I\'m limited...'; }
+    }
+    // OS info
+    if(input.includes('how') && input.includes('os')){
+        resp='This is Enfrok Web OS. Click apps to open, top taskbar controls apps, enjoy!'; 
+    }
+    responseDiv.innerHTML=resp;
+    document.getElementById('ai-input').value='';
+};
+
+/* --- Settings App --- */
+document.getElementById('delete-apps-btn').onclick=()=>{
+    alert('Select desktop icon and press Delete key to remove apps (future implementation).');
+};
+</script>
+
+</body>
+</html>
