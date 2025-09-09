@@ -1,146 +1,178 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Enfrok OS</title>
-  <link rel="stylesheet" href="style.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>EnfrokEI Desktop</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+<style>
+/* --- Global Styles --- */
+body { margin:0; font-family:'Inter', sans-serif; background:linear-gradient(145deg,#111,#1C1C1E); overflow:hidden; }
+/* Top Bar */
+.top-bar { position:fixed; top:0; left:0; width:100%; height:55px; backdrop-filter:blur(12px); background:rgba(20,20,20,0.8); display:flex; align-items:center; justify-content:flex-end; padding:0 20px; box-shadow:0 2px 8px rgba(0,0,0,0.5); z-index:1000;}
+.top-bar button{background:none;border:none;color:#fff;font-size:20px;cursor:pointer;margin-left:15px;transition:transform 0.2s;}
+.top-bar button:hover{transform:scale(1.2); color:#4F8EF7;}
+/* Desktop Icons */
+.desktop {display:grid; grid-template-columns:repeat(auto-fill,100px); grid-gap:30px; padding:80px 50px 50px 50px;}
+.desktop-icon {display:flex; flex-direction:column; align-items:center; cursor:pointer; color:#fff; transition:transform 0.2s; text-align:center;}
+.desktop-icon img {width:80px; height:80px; border-radius:16px; box-shadow:0 4px 12px rgba(0,0,0,0.5); margin-bottom:8px;}
+.desktop-icon:hover {transform:scale(1.1);}
+/* App Window */
+.app-window {position:fixed; top:50%; left:50%; width:600px; max-width:90%; height:400px; max-height:80%; background:#1C1C1E; border-radius:16px; box-shadow:0 10px 25px rgba(0,0,0,0.5); transform:translate(-50%,-50%) scale(0.95); opacity:0; transition:all 0.25s ease; z-index:999; display:flex; flex-direction:column; overflow:hidden;}
+.app-window.active {opacity:1; transform:translate(-50%,-50%) scale(1);}
+.app-header {height:45px; background:rgba(40,40,40,0.9); display:flex; align-items:center; justify-content:space-between; padding:0 15px; color:#fff; font-weight:600;}
+.app-header button {background:none; border:none; color:#fff; font-size:18px; cursor:pointer; transition:color 0.2s;}
+.app-header button:hover {color:#FF6FCF;}
+.app-content {flex:1; padding:20px; overflow:auto; color:#fff;}
+/* Calculator */
+.calc-screen {background:#222; color:#fff; padding:10px; font-size:24px; text-align:right; border-radius:8px; margin-bottom:10px;}
+.calc-buttons {display:grid; grid-template-columns:repeat(4,1fr); gap:10px;}
+.calc-buttons button{padding:15px; font-size:18px; border:none; border-radius:8px; cursor:pointer; background:#333; color:#fff; transition:0.2s;}
+.calc-buttons button:hover{background:#4F8EF7;}
+/* Notebook */
+#notepad {width:100%; height:100%; background:#222; color:#fff; border:none; padding:10px; border-radius:8px; resize:none; font-size:16px;}
+/* Browser */
+#browser-input {width:80%; padding:8px; font-size:16px; border-radius:8px; border:none; margin-bottom:10px;}
+#browser-go {padding:8px 12px; border:none; border-radius:8px; background:#4F8EF7; color:#fff; cursor:pointer;}
+#browser-frame {width:100%; height:80%; border:none; border-radius:8px; background:#000;}
+/* AI Assistant */
+#ai-chat {height:calc(100% - 50px); overflow-y:auto; background:#222; padding:10px; border-radius:8px;}
+.ai-input {width:80%; padding:8px; border-radius:8px; border:none; margin-right:10px;}
+.ai-send {padding:8px 12px; border:none; border-radius:8px; background:#FF6FCF; color:#fff; cursor:pointer;}
+.message {margin:5px 0; padding:6px 10px; border-radius:8px;}
+.user-msg{background:#4F8EF7; align-self:flex-end;}
+.ai-msg{background:#555; align-self:flex-start;}
+</style>
 </head>
 <body>
-  <!-- Taskbar -->
-  <div class="taskbar">
-    <button class="start-btn">☰ Menu</button>
-  </div>
 
-  <!-- Desktop -->
-  <!-- Desktop Icons -->
-<div class="desktop">
-  <div class="desktop-icon" onclick="openApp('settings')">
-    <img src="https://img.icons8.com/ios-filled/100/ffffff/settings.png" />
-    <span>Settings</span>
-  </div>
-  <div class="desktop-icon" onclick="openApp('calculator')">
-    <img src="https://img.icons8.com/ios-filled/100/ffffff/calculator.png" />
-    <span>Calculator</span>
-  </div>
-  <div class="desktop-icon" onclick="openApp('notes')">
-    <img src="https://img.icons8.com/ios-filled/100/ffffff/note.png" />
-    <span>Notes</span>
-  </div>
-  <div class="desktop-icon" onclick="openApp('browser')">
-    <img src="https://img.icons8.com/ios-filled/100/ffffff/internet-browser.png" />
-    <span>Browser</span>
-  </div>
-  <div class="desktop-icon" onclick="openApp('ai')">
-    <img src="https://img.icons8.com/ios-filled/100/ffffff/artificial-intelligence.png" />
-    <span>Enfrok AI</span>
-  </div>
+<div class="top-bar">
+    <button id="lockBtn">🔒</button>
 </div>
 
-  <!-- Settings App -->
-  <div class="app-window" id="settings" style="display:none;">
-    <div class="app-header">
-      <span class="title">Settings</span>
-      <div class="controls">
-        <div class="btn minimize">-</div>
-        <div class="btn close">X</div>
-        <div class="btn force">⚡</div>
-      </div>
-    </div>
-    <div class="app-content">
-      <h3>Settings</h3>
-      <p>Here you can customize your OS.</p>
-      <button onclick="alert('Feature not yet implemented: Delete apps')">Delete Apps</button>
-      <button onclick="alert('Feature not yet implemented: Change time')">Change Time</button>
-      <button onclick="alert('Feature not yet implemented: Change Country Time')">Change Country Time</button>
-    </div>
-  </div>
+<div class="desktop">
+    <div class="desktop-icon" data-app="settings"><img src="icons/settings.png"><div>Settings</div></div>
+    <div class="desktop-icon" data-app="calculator"><img src="icons/calculator.png"><div>Calculator</div></div>
+    <div class="desktop-icon" data-app="notebook"><img src="icons/notebook.png"><div>Notebook</div></div>
+    <div class="desktop-icon" data-app="browser"><img src="icons/browser.png"><div>Browser</div></div>
+    <div class="desktop-icon" data-app="ai"><img src="icons/ai.png"><div>AI Assistant</div></div>
+</div>
 
-  <!-- Calculator App -->
-  <div class="app-window" id="calculator" style="display:none;">
-    <div class="app-header">
-      <span class="title">Calculator</span>
-      <div class="controls">
-        <div class="btn minimize">-</div>
-        <div class="btn close">X</div>
-        <div class="btn force">⚡</div>
-      </div>
-    </div>
-    <div class="app-content">
-      <input type="text" id="calc-display" readonly>
-      <div class="calc-grid">
-        <button onclick="insertCalc('7')">7</button>
-        <button onclick="insertCalc('8')">8</button>
-        <button onclick="insertCalc('9')">9</button>
-        <button onclick="insertCalc('/')">÷</button>
-        <button onclick="insertCalc('4')">4</button>
-        <button onclick="insertCalc('5')">5</button>
-        <button onclick="insertCalc('6')">6</button>
-        <button onclick="insertCalc('*')">×</button>
-        <button onclick="insertCalc('1')">1</button>
-        <button onclick="insertCalc('2')">2</button>
-        <button onclick="insertCalc('3')">3</button>
-        <button onclick="insertCalc('-')">-</button>
-        <button onclick="insertCalc('0')">0</button>
-        <button onclick="insertCalc('.')">.</button>
-        <button onclick="calculate()">=</button>
-        <button onclick="insertCalc('+')">+</button>
-        <button onclick="clearCalc()" style="grid-column: span 4;">C</button>
-      </div>
-    </div>
-  </div>
+<!-- Settings -->
+<div id="settings" class="app-window">
+    <div class="app-header">Settings <button class="closeBtn">✖</button></div>
+    <div class="app-content"><p>Settings content here.</p></div>
+</div>
 
-  <!-- Notes App -->
-  <div class="app-window" id="notes" style="display:none;">
-    <div class="app-header">
-      <span class="title">Notes</span>
-      <div class="controls">
-        <div class="btn minimize">-</div>
-        <div class="btn close">X</div>
-        <div class="btn force">⚡</div>
-      </div>
-    </div>
+<!-- Calculator -->
+<div id="calculator" class="app-window">
+    <div class="app-header">Calculator <button class="closeBtn">✖</button></div>
     <div class="app-content">
-      <textarea id="notes-area" rows="12" placeholder="Write your notes here..."></textarea>
+        <div class="calc-screen" id="calcScreen">0</div>
+        <div class="calc-buttons">
+            <button data-val="7">7</button><button data-val="8">8</button><button data-val="9">9</button><button data-val="/">÷</button>
+            <button data-val="4">4</button><button data-val="5">5</button><button data-val="6">6</button><button data-val="*">×</button>
+            <button data-val="1">1</button><button data-val="2">2</button><button data-val="3">3</button><button data-val="-">−</button>
+            <button data-val="0">0</button><button data-val=".">.</button><button data-val="=">=</button><button data-val="+">+</button>
+        </div>
     </div>
-  </div>
+</div>
 
-  <!-- Browser App -->
-  <div class="app-window" id="browser" style="display:none;">
-    <div class="app-header">
-      <span class="title">Browser</span>
-      <div class="controls">
-        <div class="btn minimize">-</div>
-        <div class="btn close">X</div>
-        <div class="btn force">⚡</div>
-      </div>
-    </div>
+<!-- Notebook -->
+<div id="notebook" class="app-window">
+    <div class="app-header">Notebook <button class="closeBtn">✖</button></div>
     <div class="app-content">
-      <input type="text" id="browser-url" placeholder="Enter website URL">
-      <button onclick="openWebsite()">Go</button>
-      <iframe id="browser-frame" style="width:100%;height:250px;border:none;margin-top:10px;"></iframe>
+        <textarea id="notepad" placeholder="Type your notes here..."></textarea>
     </div>
-  </div>
+</div>
 
-  <!-- Enfrok Intelligence App -->
-  <div class="app-window" id="ai" style="display:none;">
-    <div class="app-header">
-      <span class="title">Enfrok Intelligence</span>
-      <div class="controls">
-        <div class="btn minimize">-</div>
-        <div class="btn close">X</div>
-        <div class="btn force">⚡</div>
-      </div>
-    </div>
-    <div class="app-content chat-box" id="chat-box">
-      <!-- Chat messages appear here -->
-    </div>
+<!-- Browser -->
+<div id="browser" class="app-window">
+    <div class="app-header">Browser <button class="closeBtn">✖</button></div>
     <div class="app-content">
-      <input type="text" id="ai-input" placeholder="Ask something or type math...">
-      <button id="ai-send">Send</button>
+        <input type="text" id="browser-input" placeholder="Enter safe URL (https://...)" />
+        <button id="browser-go">Go</button>
+        <iframe id="browser-frame"></iframe>
     </div>
-  </div>
+</div>
 
-  <!-- Script -->
-  <script src="script.js"></script>
+<!-- AI Assistant -->
+<div id="ai" class="app-window">
+    <div class="app-header">AI Assistant <button class="closeBtn">✖</button></div>
+    <div class="app-content" style="display:flex; flex-direction:column;">
+        <div id="ai-chat"></div>
+        <div style="display:flex; margin-top:10px;">
+            <input type="text" id="ai-input" class="ai-input" placeholder="Type a message..."/>
+            <button id="ai-send" class="ai-send">Send</button>
+        </div>
+    </div>
+</div>
+
+<script>
+// --- Desktop App Logic ---
+const icons = document.querySelectorAll('.desktop-icon');
+const apps = document.querySelectorAll('.app-window');
+
+icons.forEach(icon=>{
+    icon.addEventListener('click', ()=>{
+        const appId = icon.dataset.app;
+        document.getElementById(appId).classList.add('active');
+    });
+});
+document.querySelectorAll('.closeBtn').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+        btn.closest('.app-window').classList.remove('active');
+    });
+});
+document.getElementById('lockBtn').addEventListener('click', ()=>alert("Screen Locked!"));
+
+// --- Calculator ---
+let calcScreen = document.getElementById('calcScreen');
+let currentInput = '';
+document.querySelectorAll('.calc-buttons button').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+        let val = btn.dataset.val;
+        if(val==='='){
+            try{ currentInput = eval(currentInput.replace('×','*').replace('÷','/').replace('−','-')) }catch(e){currentInput='Error'}
+        }else{ currentInput+=val }
+        calcScreen.innerText = currentInput;
+    });
+});
+
+// --- Notebook ---
+const notepad = document.getElementById('notepad');
+
+// --- Browser ---
+const browserGo = document.getElementById('browser-go');
+const browserInput = document.getElementById('browser-input');
+const browserFrame = document.getElementById('browser-frame');
+browserGo.addEventListener('click', ()=>{
+    let url = browserInput.value;
+    if(!url.startsWith('https://')) url='https://'+url;
+    // Only allow safe sites
+    const allowed = ['https://www.google.com','https://www.wikipedia.org','https://www.enfrok.com'];
+    if(allowed.includes(url)) browserFrame.src=url;
+    else alert("This website is blocked for safety.");
+});
+
+// --- AI Assistant ---
+const aiSend = document.getElementById('ai-send');
+const aiInput = document.getElementById('ai-input');
+const aiChat = document.getElementById('ai-chat');
+
+aiSend.addEventListener('click', ()=>{
+    const msg = aiInput.value.trim();
+    if(!msg) return;
+    const userMsg = document.createElement('div'); userMsg.className='message user-msg'; userMsg.innerText=msg;
+    aiChat.appendChild(userMsg);
+    aiInput.value='';
+    setTimeout(()=>{
+        const aiMsg = document.createElement('div'); aiMsg.className='message ai-msg';
+        aiMsg.innerText = "AI says: " + msg.split('').reverse().join(''); // simple demo response
+        aiChat.appendChild(aiMsg);
+        aiChat.scrollTop = aiChat.scrollHeight;
+    },500);
+});
+</script>
 </body>
 </html>
