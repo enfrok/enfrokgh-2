@@ -1,144 +1,145 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Enfrok Web OS</title>
-<style>
-    * {margin:0; padding:0; box-sizing:border-box; font-family: 'Inter', 'Segoe UI', sans-serif;}
-    body {background:linear-gradient(135deg,#1a1a2e,#16213e); height:100vh; overflow:hidden; color:#f5f5f5;}
-
-    /* --- Taskbar --- */
-    #taskbar {
-        position:fixed; top:0; left:0; right:0; height:45px;
-        backdrop-filter: blur(12px); background:rgba(30,30,50,0.6);
-        display:flex; align-items:center; padding:0 15px; z-index:1000;
-        border-bottom:1px solid rgba(255,255,255,0.1);
-    }
-    #taskbar span {margin-right:20px; cursor:pointer; transition:.2s;}
-    #taskbar span:hover {color:#00d4ff;}
-    #taskbar .time {margin-left:auto;}
-
-    /* --- Desktop Icons --- */
-    #desktop {position:absolute; top:50px; left:0; right:0; bottom:0; padding:20px; display:flex; flex-wrap:wrap;}
-    .icon {width:90px; text-align:center; margin:15px; cursor:pointer; transition:.3s;}
-    .icon img {width:64px; height:64px; border-radius:18px;}
-    .icon:hover {transform:scale(1.1);}
-
-    /* --- App Window --- */
-    .app-window {
-        position:absolute; top:80px; left:80px; width:500px; height:350px;
-        background:rgba(40,40,60,0.95); backdrop-filter:blur(8px);
-        border-radius:16px; box-shadow:0 8px 25px rgba(0,0,0,0.5);
-        display:none; flex-direction:column; z-index:900; overflow:hidden;
-        animation: fadeIn .3s ease;
-    }
-    @keyframes fadeIn {from{opacity:0; transform:scale(0.9);} to{opacity:1; transform:scale(1);}}
-    .app-header {
-        display:flex; justify-content:space-between; align-items:center;
-        padding:8px 14px; background:rgba(50,50,70,0.9); font-weight:600;
-    }
-    .app-controls span {
-        margin-left:8px; cursor:pointer; font-size:16px; transition:.2s;
-        display:inline-block; width:20px; height:20px; text-align:center; border-radius:50%;
-    }
-    .app-controls span:hover {background:rgba(255,255,255,0.2);}
-    .app-content {flex:1; padding:12px; overflow:auto;}
-
-    /* --- AI Chat App --- */
-    #ai-chat {display:flex; flex-direction:column; height:100%;}
-    #chat-box {flex:1; overflow-y:auto; padding:10px; display:flex; flex-direction:column; gap:8px;}
-    .msg {max-width:70%; padding:10px 14px; border-radius:12px; line-height:1.4;}
-    .user-msg {align-self:flex-end; background:#00d4ff; color:#000;}
-    .ai-msg {align-self:flex-start; background:#2a2a40; color:#f5f5f5;}
-    #chat-input-area {display:flex; gap:8px; padding:10px; border-top:1px solid rgba(255,255,255,0.1);}
-    #chat-input {flex:1; padding:8px; border-radius:10px; border:none; outline:none; background:#1e1e2e; color:#fff;}
-    #chat-send {padding:8px 14px; border:none; border-radius:10px; background:#00d4ff; cursor:pointer; font-weight:600;}
-    #chat-send:hover {background:#00aacc;}
-
-</style>
+  <meta charset="UTF-8">
+  <title>Enfrok OS</title>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
+  <!-- Taskbar -->
+  <div class="taskbar">
+    <button class="start-btn">☰ Menu</button>
+  </div>
 
-<!-- Taskbar -->
-<div id="taskbar">
-    <span id="open-settings">⚙ Settings</span>
-    <span id="open-calc">🧮 Calc</span>
-    <span id="open-notes">📝 Notes</span>
-    <span id="open-browser">🌐 Browser</span>
-    <span id="open-ai">🤖 AI</span>
-    <span class="time" id="time-display"></span>
-</div>
-
-<!-- Desktop -->
-<div id="desktop">
-    <div class="icon" id="desktop-ai">
-        <img src="https://img.icons8.com/fluency/96/robot.png"/><div>AI</div>
+  <!-- Desktop -->
+  <div class="desktop">
+    <div class="desktop-icon" onclick="openApp('settings')">
+      <img src="icons/settings.png" alt="Settings">
+      <div>Settings</div>
     </div>
-</div>
+    <div class="desktop-icon" onclick="openApp('calculator')">
+      <img src="icons/calculator.png" alt="Calculator">
+      <div>Calculator</div>
+    </div>
+    <div class="desktop-icon" onclick="openApp('notes')">
+      <img src="icons/notes.png" alt="Notes">
+      <div>Notes</div>
+    </div>
+    <div class="desktop-icon" onclick="openApp('browser')">
+      <img src="icons/browser.png" alt="Browser">
+      <div>Browser</div>
+    </div>
+    <div class="desktop-icon" onclick="openApp('ai')">
+      <img src="icons/ai.png" alt="AI">
+      <div>Enfrok AI</div>
+    </div>
+  </div>
 
-<!-- AI App -->
-<div class="app-window" id="ai-app">
+  <!-- Settings App -->
+  <div class="app-window" id="settings" style="display:none;">
     <div class="app-header">
-        <div>Enfrok Intelligence</div>
-        <div class="app-controls">
-            <span class="minimize">⏤</span>
-            <span class="close">✖</span>
-            <span class="force-stop">⚡</span>
-        </div>
+      <span class="title">Settings</span>
+      <div class="controls">
+        <div class="btn minimize">-</div>
+        <div class="btn close">X</div>
+        <div class="btn force">⚡</div>
+      </div>
     </div>
     <div class="app-content">
-        <div id="ai-chat">
-            <div id="chat-box"></div>
-            <div id="chat-input-area">
-                <input type="text" id="chat-input" placeholder="Ask me something...">
-                <button id="chat-send">Send</button>
-            </div>
-        </div>
+      <h3>Settings</h3>
+      <p>Here you can customize your OS.</p>
+      <button onclick="alert('Feature not yet implemented: Delete apps')">Delete Apps</button>
+      <button onclick="alert('Feature not yet implemented: Change time')">Change Time</button>
+      <button onclick="alert('Feature not yet implemented: Change Country Time')">Change Country Time</button>
     </div>
-</div>
+  </div>
 
-<script>
-/* --- Time --- */
-function updateTime(){
-    const now = new Date();
-    document.getElementById('time-display').textContent = now.toLocaleTimeString();
-}
-setInterval(updateTime,1000); updateTime();
+  <!-- Calculator App -->
+  <div class="app-window" id="calculator" style="display:none;">
+    <div class="app-header">
+      <span class="title">Calculator</span>
+      <div class="controls">
+        <div class="btn minimize">-</div>
+        <div class="btn close">X</div>
+        <div class="btn force">⚡</div>
+      </div>
+    </div>
+    <div class="app-content">
+      <input type="text" id="calc-display" readonly>
+      <div class="calc-grid">
+        <button onclick="insertCalc('7')">7</button>
+        <button onclick="insertCalc('8')">8</button>
+        <button onclick="insertCalc('9')">9</button>
+        <button onclick="insertCalc('/')">÷</button>
+        <button onclick="insertCalc('4')">4</button>
+        <button onclick="insertCalc('5')">5</button>
+        <button onclick="insertCalc('6')">6</button>
+        <button onclick="insertCalc('*')">×</button>
+        <button onclick="insertCalc('1')">1</button>
+        <button onclick="insertCalc('2')">2</button>
+        <button onclick="insertCalc('3')">3</button>
+        <button onclick="insertCalc('-')">-</button>
+        <button onclick="insertCalc('0')">0</button>
+        <button onclick="insertCalc('.')">.</button>
+        <button onclick="calculate()">=</button>
+        <button onclick="insertCalc('+')">+</button>
+        <button onclick="clearCalc()" style="grid-column: span 4;">C</button>
+      </div>
+    </div>
+  </div>
 
-/* --- Open/Close Apps --- */
-function openApp(id){ document.getElementById(id).style.display='flex'; }
-document.getElementById('desktop-ai').onclick = ()=>openApp('ai-app');
-document.getElementById('open-ai').onclick = ()=>openApp('ai-app');
-document.querySelectorAll('.close').forEach(b=>b.onclick=()=>b.closest('.app-window').style.display='none');
-document.querySelectorAll('.minimize').forEach(b=>b.onclick=()=>b.closest('.app-window').style.display='none');
-document.querySelectorAll('.force-stop').forEach(b=>b.onclick=()=>b.closest('.app-window').style.display='none');
+  <!-- Notes App -->
+  <div class="app-window" id="notes" style="display:none;">
+    <div class="app-header">
+      <span class="title">Notes</span>
+      <div class="controls">
+        <div class="btn minimize">-</div>
+        <div class="btn close">X</div>
+        <div class="btn force">⚡</div>
+      </div>
+    </div>
+    <div class="app-content">
+      <textarea id="notes-area" rows="12" placeholder="Write your notes here..."></textarea>
+    </div>
+  </div>
 
-/* --- AI Chat Logic --- */
-function addMsg(text, type){
-    const box=document.getElementById('chat-box');
-    const msg=document.createElement('div');
-    msg.className='msg '+type;
-    msg.textContent=text;
-    box.appendChild(msg);
-    box.scrollTop=box.scrollHeight;
-}
-document.getElementById('chat-send').onclick=()=>{
-    const input=document.getElementById('chat-input');
-    const text=input.value.trim();
-    if(!text) return;
-    addMsg(text,'user-msg');
-    input.value='';
-    let resp="I can’t understand this, I'm limited…";
-    if(text.match(/[0-9+\-*/]/)){
-        try {resp="Answer: "+eval(text);} catch(e){}
-    }
-    if(text.toLowerCase().includes('os')){
-        resp="This is Enfrok Web OS — click icons or use taskbar to open apps.";
-    }
-    addMsg(resp,'ai-msg');
-};
-</script>
+  <!-- Browser App -->
+  <div class="app-window" id="browser" style="display:none;">
+    <div class="app-header">
+      <span class="title">Browser</span>
+      <div class="controls">
+        <div class="btn minimize">-</div>
+        <div class="btn close">X</div>
+        <div class="btn force">⚡</div>
+      </div>
+    </div>
+    <div class="app-content">
+      <input type="text" id="browser-url" placeholder="Enter website URL">
+      <button onclick="openWebsite()">Go</button>
+      <iframe id="browser-frame" style="width:100%;height:250px;border:none;margin-top:10px;"></iframe>
+    </div>
+  </div>
 
+  <!-- Enfrok Intelligence App -->
+  <div class="app-window" id="ai" style="display:none;">
+    <div class="app-header">
+      <span class="title">Enfrok Intelligence</span>
+      <div class="controls">
+        <div class="btn minimize">-</div>
+        <div class="btn close">X</div>
+        <div class="btn force">⚡</div>
+      </div>
+    </div>
+    <div class="app-content chat-box" id="chat-box">
+      <!-- Chat messages appear here -->
+    </div>
+    <div class="app-content">
+      <input type="text" id="ai-input" placeholder="Ask something or type math...">
+      <button id="ai-send">Send</button>
+    </div>
+  </div>
+
+  <!-- Script -->
+  <script src="script.js"></script>
 </body>
 </html>
