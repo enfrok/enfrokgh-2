@@ -1,0 +1,21 @@
+/* Light Theme */
+.light body {
+  background: linear-gradient(135deg, #ece9e6, #ffffff);
+  color: black;
+}
+.light .taskbar {
+  background: rgba(240, 240, 240, 0.9);
+}
+.light .app {
+  background: rgba(250, 250, 250, 0.95);
+  color: black;
+}
+
+/* Frosted Theme */
+.frosted body {
+  background: linear-gradient(135deg, #83a4d4, #b6fbff);
+}
+.frosted .app {
+  background: rgba(255, 255, 255, 0.4);
+  backdrop-filter: blur(15px);
+}
