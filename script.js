@@ -1,140 +1,71 @@
-/* ========== GLOBAL APP CONTROL ========== */
-function openApp(appId) {
-  const app = document.getElementById(appId);
-  if (app) {
-    app.style.display = "flex";
-    bringToFront(app);
-  }
-}
+// --- Desktop & App Open/Close ---
+const icons = document.querySelectorAll('.desktop-icon');
+const apps = document.querySelectorAll('.app-window');
 
-function closeApp(appId) {
-  const app = document.getElementById(appId);
-  if (app) app.style.display = "none";
-}
-
-function bringToFront(app) {
-  // Reset z-index of all windows
-  document.querySelectorAll(".app-window").forEach(win => win.style.zIndex = 1);
-  app.style.zIndex = 999;
-  app.classList.add("active");
-}
-
-/* ========== DRAGGABLE WINDOWS ========== */
-document.querySelectorAll(".app-window").forEach(app => {
-  const header = app.querySelector(".app-header");
-  let isDragging = false, offsetX, offsetY;
-
-  header.addEventListener("mousedown", e => {
-    isDragging = true;
-    offsetX = e.clientX - app.offsetLeft;
-    offsetY = e.clientY - app.offsetTop;
-    bringToFront(app);
-  });
-
-  document.addEventListener("mousemove", e => {
-    if (isDragging) {
-      app.style.left = `${e.clientX - offsetX}px`;
-      app.style.top = `${e.clientY - offsetY}px`;
-    }
-  });
-
-  document.addEventListener("mouseup", () => isDragging = false);
-
-  // Header buttons
-  header.querySelector(".minimize")?.addEventListener("click", () => {
-    app.style.display = "none";
-  });
-  header.querySelector(".close")?.addEventListener("click", () => {
-    app.style.display = "none";
-  });
-  header.querySelector(".force")?.addEventListener("click", () => {
-    app.style.display = "none";
-  });
+icons.forEach(icon => {
+    icon.addEventListener('click', () => {
+        const appId = icon.dataset.app;
+        document.getElementById(appId).classList.add('active');
+    });
 });
 
-/* ========== CALCULATOR ========== */
-const calcDisplay = document.getElementById("calc-display");
-function insertCalc(val) {
-  calcDisplay.value += val;
-}
-function clearCalc() {
-  calcDisplay.value = "";
-}
-function calculate() {
-  try {
-    calcDisplay.value = eval(calcDisplay.value);
-  } catch {
-    calcDisplay.value = "Error";
-  }
-}
+document.querySelectorAll('.closeBtn').forEach(btn => {
+    btn.addEventListener('click', () => {
+        btn.closest('.app-window').classList.remove('active');
+    });
+});
 
-/* ========== NOTES APP ========== */
-const notesArea = document.getElementById("notes-area");
-if (notesArea) {
-  notesArea.value = localStorage.getItem("notes") || "";
-  notesArea.addEventListener("input", () => {
-    localStorage.setItem("notes", notesArea.value);
-  });
-}
+// Lock Button
+document.getElementById('lockBtn').addEventListener('click', () => {
+    alert("Screen Locked! (Add actual lock logic here)");
+});
 
-/* ========== BROWSER APP ========== */
-function openWebsite() {
-  const urlInput = document.getElementById("browser-url");
-  const iframe = document.getElementById("browser-frame");
-  let url = urlInput.value.trim();
-  if (!url.startsWith("http")) {
-    url = "https://" + url;
-  }
-  iframe.src = url;
-}
+// --- Calculator ---
+let calcScreen = document.getElementById('calcScreen');
+let currentInput = '';
+document.querySelectorAll('.calc-buttons button').forEach(btn => {
+    btn.addEventListener('click', () => {
+        let val = btn.dataset.val;
+        if (val === '=') {
+            try { 
+                currentInput = eval(currentInput.replace('×','*').replace('÷','/').replace('−','-')) 
+            } catch(e) { currentInput='Error' }
+        } else { currentInput += val }
+        calcScreen.innerText = currentInput;
+    });
+});
 
-/* ========== ENFROK INTELLIGENCE (AI) ========== */
-const aiInput = document.getElementById("ai-input");
-const aiSend = document.getElementById("ai-send");
-const chatBox = document.getElementById("chat-box");
+// --- Browser ---
+const browserGo = document.getElementById('browser-go');
+const browserInput = document.getElementById('browser-input');
+const browserFrame = document.getElementById('browser-frame');
 
-function addMessage(text, sender = "ai") {
-  const msg = document.createElement("div");
-  msg.classList.add("message", sender);
-  msg.innerText = text;
-  chatBox.appendChild(msg);
-  chatBox.scrollTop = chatBox.scrollHeight;
-}
+browserGo.addEventListener('click', () => {
+    let url = browserInput.value;
+    if(!url.startsWith('https://')) url='https://'+url;
+    const allowed = ['https://www.google.com','https://www.wikipedia.org','https://www.enfrok.com'];
+    if(allowed.includes(url)) browserFrame.src = url;
+    else alert("This website is blocked for safety.");
+});
 
-function processAI(message) {
-  let response = "";
+// --- AI Assistant ---
+const aiSend = document.getElementById('ai-send');
+const aiInput = document.getElementById('ai-input');
+const aiChat = document.getElementById('ai-chat');
 
-  // Math solver
-  if (/[\d\+\-\*\/\(\)]/.test(message)) {
-    try {
-      response = "Answer: " + eval(message);
-    } catch {
-      response = "I can't solve this, sorry...";
-    }
-  }
-  // Greetings
-  else if (/hello|hi/i.test(message)) {
-    response = "Hey there! This is Enfrok Intelligence. Type math to solve or ask how the OS works.";
-  }
-  // OS help
-  else if (/how.*os/i.test(message)) {
-    response = "This OS works like Windows but with our unique touch — click icons on the desktop to launch apps, drag windows, and explore!";
-  }
-  // Fallback
-  else {
-    response = "I can't understand this, I'm limited...";
-  }
-
-  addMessage(response, "ai");
-}
-
-if (aiSend) {
-  aiSend.addEventListener("click", () => {
-    const text = aiInput.value.trim();
-    if (text) {
-      addMessage(text, "user");
-      processAI(text);
-      aiInput.value = "";
-    }
-  });
-}
+aiSend.addEventListener('click', () => {
+    const msg = aiInput.value.trim();
+    if(!msg) return;
+    const userMsg = document.createElement('div');
+    userMsg.className = 'message user-msg';
+    userMsg.innerText = msg;
+    aiChat.appendChild(userMsg);
+    aiInput.value='';
+    setTimeout(()=>{
+        const aiMsg = document.createElement('div');
+        aiMsg.className='message ai-msg';
+        aiMsg.innerText = "AI: " + msg.split('').reverse().join(''); // demo response
+        aiChat.appendChild(aiMsg);
+        aiChat.scrollTop = aiChat.scrollHeight;
+    },500);
+});
